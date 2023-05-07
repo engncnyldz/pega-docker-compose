@@ -1,0 +1,5 @@
+kafkadata/
+search_index/
+*.jar*
+*.war
+*.dump

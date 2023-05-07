@@ -1,0 +1,53 @@
+version: '3'
+
+services:
+  web:
+    image: pega-pe-8-7:latest
+    depends_on:
+      - backing-services
+      - db
+    ports:
+      - 8080:8080
+    environment:
+      - NODE_TYPE=WebUser
+      - INITIAL_HEAP=4g
+      - MAX_HEAP=6g
+      - JAVA_OPTS='-Duser.timezone="Europe/Istanbul"'
+      - JDBC_CLASS=org.postgresql.Driver
+      - JDBC_URL=jdbc:postgresql://db:5432/postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+
+  backing-services:
+    image: pega-pe-8-7:latest
+    depends_on:
+      - db
+    environment:
+      - NODE_TYPE="BackgroundProcessing,Stream,Search"
+      - INITIAL_HEAP=2g
+      - MAX_HEAP=4g
+      - JAVA_OPTS='-Duser.timezone="Europe/Istanbul"'
+      - JDBC_CLASS=org.postgresql.Driver
+      - JDBC_URL=jdbc:postgresql://db:5432/postgres
+      - DB_USERNAME=postgres
+      - DB_PASSWORD=postgres
+
+    volumes:
+      - type: bind
+        source: ./pega/kafkadata
+        target: /opt/pega/kafkadata
+
+      - type: bind
+        source: ./pega/search_index
+        target: /search_index
+
+  db:
+    image: pega-postgres:latest
+    ports:
+      - 5432:5432
+    volumes:
+      - pega_pgdata:/var/lib/postgresql-persist/data
+
+volumes:
+  pega_pgdata:
+    external: true
