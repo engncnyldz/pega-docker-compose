@@ -3,6 +3,7 @@ version: '3'
 services:
   web:
     image: pega-pe-8-7:latest
+    hostname: webuser
     depends_on:
       - backing-services
       - db
@@ -13,24 +14,36 @@ services:
       - INITIAL_HEAP=4g
       - MAX_HEAP=6g
       - JAVA_OPTS='-Duser.timezone="Europe/Istanbul"'
+      - HOSTNAME=pega-pe-webuser
+      - NODE_TIER=webuser
       - JDBC_CLASS=org.postgresql.Driver
       - JDBC_URL=jdbc:postgresql://db:5432/postgres
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
-
+    networks:
+      network1:
+        ipv4_address: 172.25.0.4
+  
   backing-services:
     image: pega-pe-8-7:latest
+    hostname: backing-services
     depends_on:
       - db
     environment:
       - NODE_TYPE="BackgroundProcessing,Stream,Search"
       - INITIAL_HEAP=2g
       - MAX_HEAP=4g
-      - JAVA_OPTS='-Duser.timezone="Europe/Istanbul"'
+      - JAVA_OPTS='-Duser.timezone="Europe/Istanbul" -Dindex.directory=/search_index'
+      - HOSTNAME=pega-pe-backing-services
+      - INDEX_DIRECTORY=/search_index
+      - NODE_TIER=backing-services
       - JDBC_CLASS=org.postgresql.Driver
       - JDBC_URL=jdbc:postgresql://db:5432/postgres
       - DB_USERNAME=postgres
       - DB_PASSWORD=postgres
+    networks:
+      network1:
+        ipv4_address: 172.25.0.3
 
     volumes:
       - type: bind
@@ -47,6 +60,13 @@ services:
       - 5432:5432
     volumes:
       - pega_pgdata:/var/lib/postgresql-persist/data
+    networks:
+      network1:
+        ipv4_address: 172.25.0.2
+networks:
+  network1:
+      name: pega-network
+      external: true
 
 volumes:
   pega_pgdata:
