@@ -1,2 +1,2 @@
-# pega-docker-compose
-A demo that deploys Pega Personal Edition on Docker Compose
+# Pega Docker Compose
+Full documentation on how to work with this is available here:
