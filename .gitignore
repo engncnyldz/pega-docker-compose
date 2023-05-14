@@ -3,3 +3,4 @@ search_index/
 *.jar*
 *.war
 *.dump
+postgres/
