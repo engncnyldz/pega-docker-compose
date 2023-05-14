@@ -2,7 +2,7 @@ version: '3'
 
 services:
   web:
-    image: pega-pe-8-7:latest
+    image: pega-pe:latest
     hostname: webuser
     depends_on:
       - backing-services
@@ -25,7 +25,7 @@ services:
         ipv4_address: 172.25.0.4
   
   backing-services:
-    image: pega-pe-8-7:latest
+    image: pega-pe:latest
     hostname: backing-services
     depends_on:
       - db
@@ -55,19 +55,24 @@ services:
         target: /search_index
 
   db:
-    image: pega-postgres:latest
+    image: engincan/postgres-pljava:13
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
     ports:
       - 5432:5432
     volumes:
-      - pega_pgdata:/var/lib/postgresql-persist/data
+      - pega-data:/var/lib/postgresql/data
     networks:
       network1:
         ipv4_address: 172.25.0.2
+
 networks:
   network1:
       name: pega-network
       external: true
 
 volumes:
-  pega_pgdata:
+  pega-data:
     external: true
