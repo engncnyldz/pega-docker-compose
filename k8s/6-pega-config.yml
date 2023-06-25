@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pega-backing-services-config
+  namespace: pega
+data:
+  initial_heap: 2g
+  max_heap: 4g
+  java_opts: '-Duser.timezone="Europe/Istanbul"'
+  hostname: pega-backing-services
+  node_tier: backing-services
+  db_username: postgres
+  db_password: postgres
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pega-web-config
+  namespace: pega
+data:
+  initial_heap: 4g
+  max_heap: 6g
+  java_opts: '-Duser.timezone="Europe/Istanbul"'
+  hostname: pega-webuser
+  node_tier: webuser
+  db_username: postgres  
+  db_password: postgres

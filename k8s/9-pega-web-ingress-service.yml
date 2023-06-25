@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: pega-ingress
+  namespace: pega
+  annotations:
+    kubernetes.io/ingress.class: nginx
+spec:
+  rules:
+    - host: my-pega-personal.internal
+      http:
+        paths:
+          - path: /prweb
+            pathType: Prefix
+            backend:
+              service:
+                name: pega-web-service
+                port:
+                  number: 8080
