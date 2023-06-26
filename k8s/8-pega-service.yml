@@ -4,7 +4,7 @@ metadata:
   name: pega-web-service
   namespace: pega
 spec:
-  type: NodePort
+  type: ClusterIP
   selector:
     app: pega-web
   ports:
