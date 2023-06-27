@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pega-web-monitoring-service
+  namespace: pega
+  labels:
+    app: pega-monitoring  
+spec:
+  type: ClusterIP
+  selector:
+    app: pega-web
+  ports:
+  - name: metrics
+    port: 9100
+    protocol: TCP
+    targetPort: 9100
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pega-background-monitoring-service
+  namespace: pega
+  labels:
+    app: pega-monitoring 
+spec:
+  type: ClusterIP
+  selector:
+    app: pega-backing-services
+  ports:
+  - name: metrics
+    port: 9100
+    protocol: TCP
+    targetPort: 9100
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  namespace: pega
+  name: pega-monitoring
+  labels:
+    release: monitoring
+spec:
+  endpoints:
+  - path: /metrics
+    port: metrics
+    targetPort: 9100
+  namespaceSelector:
+    matchNames:
+    - pega
+  selector:
+    matchLabels:
+      app: pega-monitoring

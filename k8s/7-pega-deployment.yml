@@ -24,14 +24,16 @@ spec:
             claimName: pega-backing-services-pvc                      
       containers:
       - name: pega-backing-services
-        image: pega-pe:latest
+        image: pega-pe:monitoring
         imagePullPolicy: Never
         volumeMounts:
           - name: pega-kafka-volume
             mountPath: /opt/pega/kafkadata
+            subPath: kafka
         volumeMounts:
           - name: pega-search-volume
             mountPath: /search_index
+            subPath: search
         env:
           - name: NODE_TYPE
             value: "BackgroundProcessing,Stream,Search"
@@ -96,7 +98,7 @@ spec:
         runAsUser: 9001
       containers:
       - name: pega-web
-        image: pega-pe:latest
+        image: pega-pe:monitoring
         imagePullPolicy: Never
         ports:
         - containerPort: 8080        
