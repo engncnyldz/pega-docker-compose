@@ -1,0 +1,146 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pega-backing-services-deployment
+  namespace: pega
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pega-backing-services
+  template:
+    metadata:
+      labels:
+        app: pega-backing-services
+    spec:
+      securityContext:
+        runAsUser: 9001
+      volumes:
+        - name: pega-kafka-volume
+          persistentVolumeClaim:
+            claimName: pega-backing-services-pvc
+        - name: pega-search-volume
+          persistentVolumeClaim:
+            claimName: pega-backing-services-pvc                      
+      containers:
+      - name: pega-backing-services
+        image: pega-pe:monitoring
+        imagePullPolicy: Never
+        volumeMounts:
+          - name: pega-kafka-volume
+            mountPath: /opt/pega/kafkadata
+            subPath: kafka
+        volumeMounts:
+          - name: pega-search-volume
+            mountPath: /search_index
+            subPath: search
+        env:
+          - name: NODE_TYPE
+            value: "BackgroundProcessing,Stream,Search"
+          - name: INITIAL_HEAP
+            valueFrom:
+              configMapKeyRef:
+                name: pega-backing-services-config
+                key: initial_heap
+          - name: MAX_HEAP
+            valueFrom:
+              configMapKeyRef:
+                name: pega-backing-services-config
+                key: max_heap
+          - name: JAVA_OPTS
+            valueFrom:
+              configMapKeyRef:
+                name: pega-backing-services-config
+                key: java_opts     
+          - name: HOSTNAME
+            valueFrom:
+              configMapKeyRef:
+                name: pega-backing-services-config
+                key: hostname
+          - name: INDEX_DIRECTORY
+            value: /search_index
+          - name: NODE_TIER
+            valueFrom:
+              configMapKeyRef:
+                name: pega-backing-services-config
+                key: node_tier
+          - name: JDBC_CLASS
+            value: org.postgresql.Driver                   
+          - name: JDBC_URL
+            value: jdbc:postgresql://postgres-service:5432/postgres
+          - name: DB_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: pega-backing-services-config
+                key: db_username
+          - name: DB_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: pega-backing-services-config
+                key: db_password                        
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pega-web-deployment
+  namespace: pega
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pega-web
+  template:
+    metadata:
+      labels:
+        app: pega-web
+    spec:
+      securityContext:
+        runAsUser: 9001
+      containers:
+      - name: pega-web
+        image: pega-pe:monitoring
+        imagePullPolicy: Never
+        ports:
+        - containerPort: 8080        
+        env:
+          - name: NODE_TYPE
+            value: "WebUser"
+          - name: INITIAL_HEAP
+            valueFrom:
+              configMapKeyRef:
+                name: pega-web-config
+                key: initial_heap
+          - name: MAX_HEAP
+            valueFrom:
+              configMapKeyRef:
+                name: pega-web-config
+                key: max_heap
+          - name: JAVA_OPTS
+            valueFrom:
+              configMapKeyRef:
+                name: pega-web-config
+                key: java_opts     
+          - name: HOSTNAME
+            valueFrom:
+              configMapKeyRef:
+                name: pega-web-config
+                key: hostname
+          - name: NODE_TIER
+            valueFrom:
+              configMapKeyRef:
+                name: pega-web-config
+                key: node_tier
+          - name: JDBC_CLASS
+            value: org.postgresql.Driver                   
+          - name: JDBC_URL
+            value: jdbc:postgresql://postgres-service:5432/postgres
+          - name: DB_USERNAME
+            valueFrom:
+              configMapKeyRef:
+                name: pega-backing-services-config
+                key: db_username
+          - name: DB_PASSWORD
+            valueFrom:
+              configMapKeyRef:
+                name: pega-web-config
+                key: db_password

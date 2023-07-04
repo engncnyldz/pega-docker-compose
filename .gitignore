@@ -3,3 +3,4 @@ search_index/
 *.jar*
 *.war
 postgres/*
+start_node_exporter_service.sh

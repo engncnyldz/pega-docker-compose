@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: pega-web-service
+  namespace: pega
+spec:
+  type: ClusterIP
+  selector:
+    app: pega-web
+  ports:
+  - port: 8080
+    protocol: TCP
+    targetPort: 8080
